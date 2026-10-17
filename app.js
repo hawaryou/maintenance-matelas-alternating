@@ -93,23 +93,23 @@ function resetBedFieldsForNext(){
 function startBatch(){
   batchMode=true;batchFinalized=false;batchRecords=[];clearCanvas(sigClient);updateBatchUI();showMessage('Tournée multi-équipements démarrée.','success');window.scrollTo({top:0,behavior:'smooth'});
 }
+function hasCurrentBedData(){
+  const hasControls=sections.some(([title,items],si)=>items.some((it,i)=>!!checked(`c_${si}_${i}`)));
+  return !!(val('serie').trim()||val('annee').trim()||val('observations').trim()||val('pieces').trim()||val('sangles').trim()||checked('avisService')||hasControls||Number(val('obsolescence')||1)>1);
+}
 function saveCurrentBedToBatch(){
-  if(!batchMode||batchFinalized)return;
+  if(!batchMode||batchFinalized)return false;
   const d=collect();
-  if(!d.serie.trim()){showMessage('Renseignez le N° de série / parc de l’équipement avant de l’enregistrer.','error');document.getElementById('serie')?.focus();return}
-  d.sigClient='';
-  batchRecords.push(d);
-  updateBatchUI();
-  showMessage(`Équipement ${batchRecords.length} enregistré. Préparez l’équipement suivant.`,'success');
-  resetBedFieldsForNext();
+  if(!d.serie.trim()){showMessage('Le contrôle en cours n’a pas été ajouté : renseignez son N° de série / parc, puis réessayez.','error');document.getElementById('serie')?.focus();return false;}
+  d.sigClient='';batchRecords.push(d);updateBatchUI();
+  showMessage(`matelas ${batchRecords.length} enregistré. Préparez le suivant.`,'success');
+  resetBedFieldsForNext();return true;
 }
 function finishBatch(){
-  if(!batchMode)return;
-  const currentSerie=val('serie').trim();
-  if(currentSerie&&!batchFinalized){ saveCurrentBedToBatch(); }
-  if(batchRecords.length===0){showMessage('Enregistrez au moins un équipement avant de terminer la tournée.','error');return;}
-  batchFinalized=true;updateBatchUI();
-  document.getElementById('clientSignatureBlock')?.scrollIntoView({behavior:'smooth',block:'center'});
+  if(!batchMode||batchFinalized)return;
+  if(hasCurrentBedData()){const saved=saveCurrentBedToBatch();if(!saved)return;}
+  if(batchRecords.length===0){showMessage('Réalisez puis enregistrez au moins un appareil avant de terminer la tournée.','error');return;}
+  batchFinalized=true;updateBatchUI();document.getElementById('clientSignatureBlock')?.scrollIntoView({behavior:'smooth',block:'center'});
   showMessage('La tournée est terminée. Faites signer le client une seule fois.','success');
 }
 function cancelBatch(){
@@ -366,3 +366,5 @@ function closePrivacy(){const m=document.getElementById('privacyModal');m.classL
 document.getElementById('closePrivacy').onclick=closePrivacy;
 document.getElementById('privacyModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closePrivacy()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePDFPreview();closePrivacy()}});
+
+const batchSaveBottom=document.getElementById('batchSaveBottom');const batchFinishBottom=document.getElementById('batchFinishBottom');batchSaveBottom?.addEventListener('click',function(){saveCurrentBedToBatch();});batchFinishBottom?.addEventListener('click',function(){finishBatch();});
