@@ -108,7 +108,10 @@ function startBatch(){
 }
 function hasCurrentBedData(){
   const hasControls=sections.some(([title,items],si)=>items.some((it,i)=>!!checked(`c_${si}_${i}`)));
-  return !!(val('serie').trim()||val('annee').trim()||val('observations').trim()||val('pieces').trim()||val('sangles').trim()||checked('avisService')||hasControls||Number(val('obsolescence')||1)>1);
+  const equipmentFields=['serie','annee','observations','pieces','sangles','serieBar','seriePot'];
+  const hasEquipmentText=equipmentFields.some(id=>val(id).trim()!=='');
+  const hasEquipmentChecks=['avisService','barrieres','potence','env','accessoires','securite'].some(id=>checked(id));
+  return hasEquipmentText||hasEquipmentChecks||hasControls||Number(val('obsolescence')||1)>1;
 }
 function saveCurrentBedToBatch(){
   if(!batchMode||batchFinalized)return false;
