@@ -381,3 +381,5 @@ document.getElementById('privacyModal').addEventListener('click',e=>{if(e.target
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePDFPreview();closePrivacy()}});
 
 const batchSaveBottom=document.getElementById('batchSaveBottom');const batchFinishBottom=document.getElementById('batchFinishBottom');batchSaveBottom?.addEventListener('click',function(){saveCurrentBedToBatch();});batchFinishBottom?.addEventListener('click',function(){finishBatch();});
+
+document.getElementById('openPdfPreviewTab')?.addEventListener('click',()=>{if(!previewObjectUrl||!pendingPDFResult)return;const tab=window.open(previewObjectUrl,'_blank');if(!tab){pdfPreviewStatus.textContent='Le navigateur a bloqué le nouvel onglet. Utilisez « Télécharger le PDF ». ';}});
